@@ -25,8 +25,13 @@ export default ({ album: { cover }, y }: CoverProps) => {
     outputRange: [0, 0.2, 1],
     extrapolate: Extrapolate.CLAMP,
   });
+  const translateY: any = interpolate(y, {
+    inputRange: [0, MAX_HEADER_HEIGHT],
+    outputRange: [0, -100],
+    extrapolate: Extrapolate.CLAMP,
+  });
   return (
-    <Animated.View style={[styles.container, { transform: [{ scale }] }]}>
+    <Animated.View style={[styles.container, { transform: [{ scale, translateY }] }]}>
       <Image style={styles.image} source={cover} />
       <Animated.View
         style={{

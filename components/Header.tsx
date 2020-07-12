@@ -20,13 +20,26 @@ export default ({ artist, y }: HeaderProps) => {
   });
 
   const textOpacity = interpolate(y, {
-    inputRange: [HEADER_DELTA - 8, HEADER_DELTA - 4],
+    inputRange: [HEADER_DELTA - 20, HEADER_DELTA - 8],
     outputRange: [0, 1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const textTranslate = interpolate(y, {
+    inputRange: [HEADER_DELTA - 20, HEADER_DELTA - 4],
+    outputRange: [10, 0],
     extrapolate: Extrapolate.CLAMP,
   });
   return (
     <Animated.View style={[styles.container, { opacity }]}>
-      <Animated.Text style={[styles.title, { opacity: textOpacity }]}>{artist}</Animated.Text>
+      <Animated.Text style={[styles.title, {
+        opacity: textOpacity,
+        transform: [{
+          translateY: textTranslate,
+        }],
+      }]}
+      >
+        {artist}
+      </Animated.Text>
     </Animated.View>
   );
 };
