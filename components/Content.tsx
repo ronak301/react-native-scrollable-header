@@ -1,19 +1,34 @@
-import * as React from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import * as React from "react";
+import {
+  StyleSheet, View, Text, ScrollView, Dimensions,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
-import { Album, MAX_HEADER_HEIGHT, HEADER_DELTA } from './Model';
-import Track from './Track';
-import Animated from 'react-native-reanimated';
-import { onScroll } from 'react-native-redash';
+import Animated from "react-native-reanimated";
+import { onScroll } from "react-native-redash";
+import { Album, MAX_HEADER_HEIGHT, HEADER_DELTA } from "./Model";
+import Track from "./Track";
 
 interface ContentProps {
   album: Album;
   y: Animated.Value<number>;
 }
 
+const { height } = Dimensions.get("window");
+
+const { interpolate, Extrapolate } = Animated;
+
 export default ({ album: { artist, tracks }, y }: ContentProps) => {
-  const height = MAX_HEADER_HEIGHT;
+  const shadowAnimatedHeight = interpolate(y, {
+    inputRange: [-MAX_HEADER_HEIGHT, 0],
+    outputRange: [0, MAX_HEADER_HEIGHT],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const opacity = interpolate(y, {
+    inputRange: [-MAX_HEADER_HEIGHT / 2, 0, MAX_HEADER_HEIGHT / 2],
+    outputRange: [0, 1, 0],
+    extrapolate: Extrapolate.CLAMP,
+  });
   return (
     <Animated.ScrollView
       onScroll={onScroll({ y })}
@@ -22,16 +37,16 @@ export default ({ album: { artist, tracks }, y }: ContentProps) => {
       scrollEventThrottle={1}
     >
       <View style={styles.header}>
-        <View style={[styles.gradient, { height }]}>
+        <Animated.View style={[styles.gradient, { height: shadowAnimatedHeight }]}>
           <LinearGradient
             style={StyleSheet.absoluteFill}
             start={[0, 0.3]}
             end={[0, 1]}
-            colors={['transparent', 'rgba(0, 0, 0, 0.2)', 'black']}
+            colors={["transparent", "rgba(0, 0, 0, 0.2)", "black"]}
           />
-        </View>
+        </Animated.View>
         <View style={styles.artistContainer}>
-          <Text style={styles.artist}>{artist}</Text>
+          <Animated.Text style={[styles.artist, { opacity }]}>{artist}</Animated.Text>
         </View>
       </View>
       <View style={styles.tracks}>
@@ -51,25 +66,25 @@ const styles = StyleSheet.create({
     height: MAX_HEADER_HEIGHT,
   },
   gradient: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     bottom: 0,
     right: 0,
-    alignItems: 'center',
+    alignItems: "center",
   },
   artistContainer: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   artist: {
-    textAlign: 'center',
-    color: 'white',
+    textAlign: "center",
+    color: "white",
     fontSize: 48,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   tracks: {
     paddingTop: 32,
-    backgroundColor: 'black',
+    backgroundColor: "black",
   },
 });
